@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Clima</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../src/styles.css">
+</head>
+<body>
+    <div id="app">
+        <h1>App Clima</h1>
+        
+        <div class="search-container">
+            <input 
+                type="text" 
+                id="city-input" 
+                placeholder="Digite o nome da cidade"
+                autocomplete="off"
+            >
+            <button id="fetch-weather">Buscar Clima</button>
+        </div>
+
+        <!-- Resultado -->
+        <div id="weather-result"></div>
+    </div>
+
+    <!-- JS como módulo -->
+    <script type="module" src="../src/test.js"></script>
+</body>
+</html>
