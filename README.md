@@ -1,6 +1,6 @@
 # 🌦️ App Clima
 
-Aplicação web simples para consultar o clima em tempo real usando a API Open-Meteo.
+Aplicação web para consulta de clima em tempo real utilizando a API Open-Meteo, desenvolvida como parte de um exercício do curso Generation Brasil. O projeto foi construído com apoio do ChatGPT, conforme proposto na atividade, com foco em aprendizado, boas práticas e uso consciente de ferramentas de IA.
 
 ## 📖 Sobre o Projeto
 O App Clima permite que o usuário digite o nome de uma cidade e visualize:
