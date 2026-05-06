@@ -10,25 +10,29 @@
 </head>
 <body>
     <div id="app">
-        <h1> App Clima </h1>
-        <h2>☀️ ⛅ ☁️ 🌦️ 🌧️ </h2>
+
+        <h1>App Clima</h1>
+        <h2>☀️ ⛅ ☁️ 🌦️ 🌧️</h2>
+
         <br><br>
-        
+
+        <!-- 🔍 Busca -->
         <div class="search-container">
             <input 
                 type="text" 
                 id="city-input" 
-                placeholder="Digite o nome da cidade"
+                placeholder="Digite cidades separadas por vírgula"
                 autocomplete="off"
             >
             <button id="fetch-weather">Buscar Clima</button>
         </div>
 
-        <!-- Resultado -->
+        <!-- 📊 Resultado -->
         <div id="weather-result"></div>
+
     </div>
 
-    <!-- JS como módulo -->
+    <!-- JS -->
     <script type="module" src="../src/index.js"></script>
 </body>
 </html>

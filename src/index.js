@@ -1,6 +1,6 @@
-import { buscarDadosClima } from "./api.js";
+import { buscarClimaMultiplasCidades } from "./api.js";
 
-// Esta função é responsável por traduzir o código do clima para uma descrição legível
+// Traduz código do clima
 function traduzirClima(codigo) {
     const mapa = {
         0: "Céu limpo ☀️",
@@ -24,54 +24,101 @@ function traduzirClima(codigo) {
     return mapa[codigo] || "Clima desconhecido";
 }
 
-// 1. Selecionamos os elementos do HTML que vamos usar
+// Formata data (YYYY-MM-DD → DD/MM)
+function formatarData(data) {
+    const [ano, mes, dia] = data.split("-");
+    return `${dia}/${mes}`;
+}
+
+// Elementos do HTML
 const botao = document.getElementById('fetch-weather');
 const campoCidade = document.getElementById('city-input');
 const containerResultado = document.getElementById('weather-result');
 
-// 2. Criamos o "ouvinte" para o clique do botão
-botao.addEventListener('click', async () => {
-    const nomeDaCidade = campoCidade.value.trim();
+// Evento de clique
+botao.addEventListener("click", async () => {
+    const entrada = campoCidade.value.trim();
 
-    // Validação simples: não deixa pesquisar se o campo estiver vazio
-    if (nomeDaCidade === "") {
-        alert("Por favor, digite o nome de uma cidade.");
+    if (!entrada) {
+        alert("Por favor, digite pelo menos uma cidade.");
         return;
     }
 
-    // Limpamos o resultado anterior e mostramos que está carregando
-    containerResultado.innerHTML = `<p>Buscando clima para <strong>${nomeDaCidade}</strong>...</p>`;
+    const cidades = entrada
+        .split(",")
+        .map((cidade) => cidade.trim())
+        .filter((cidade) => cidade !== "");
 
-    // 3. Chamamos a função que está lá no api.js
-    const dados = await buscarDadosClima(nomeDaCidade);
+    // Loading
+    containerResultado.innerHTML = `<p>Buscando clima para ${cidades.length} cidade(s)...</p>`;
 
-    // 4. Lógica de exibição (decide o que mostrar baseado no resultado)
-    if (dados) {
-         const descricao = traduzirClima(dados.codigoClima);
-        // Sucesso: Monta o card azul com os dados
-        containerResultado.innerHTML = `
-            <div class="card-clima">
-                <h2>${dados.nomeCidade}</h2>
-                <p>Estado: ${dados.estado}</p>
-                <p>${descricao}</p>
-                <p class="temp">${dados.temperatura}${dados.unidade}</p>
-            </div>
-        `;
-    } else if (dados === null) {
-        // Erro: Cidade não encontrada (mostra o erro com o estilo do CSS)
+    const resultados = await buscarClimaMultiplasCidades(cidades);
+
+    if (resultados === undefined) {
         containerResultado.innerHTML = `
             <div class="msg-erro">
-                <p>⚠️ Cidade "<strong>${nomeDaCidade}</strong>" não encontrada.</p>
-                <span>Verifique a ortografia e tente novamente.</span>
-            </div>
-        `;
-    } else {
-        // Erro: Problema técnico (mostra o erro com o estilo do CSS)
-        containerResultado.innerHTML = `
-            <div class="msg-erro">
-                <p>❌ Ops! Ocorreu um erro no servidor.</p>
+                <p>Ops! Ocorreu um erro no servidor.</p>
                 <span>Tente novamente em alguns instantes.</span>
             </div>
         `;
+        return;
     }
+
+    containerResultado.innerHTML = "";
+
+    resultados.forEach((dados, index) => {
+        const nomeBuscado = cidades[index];
+
+        if (dados) {
+            // 🔥 Monta os 7 dias
+            let previsoesHTML = "";
+
+            dados.previsao.time.forEach((data, i) => {
+                const descricao = traduzirClima(dados.previsao.weathercode[i]);
+                const max = dados.previsao.temperature_2m_max[i];
+                const min = dados.previsao.temperature_2m_min[i];
+
+                previsoesHTML += `
+                    <div class="dia">
+                        <p><strong>${formatarData(data)}</strong></p>
+                        <p>${descricao}</p>
+                        <p>🌡️ ${min}° / ${max}°</p>
+                    </div>
+                `;
+            });
+
+            containerResultado.innerHTML += `
+    <div class="card-clima">
+        <h2>${dados.nomeCidade}</h2>
+        <p>Estado: ${dados.estado}</p>
+
+        <p class="agora">Temperatura atual:</p>   
+        <p class="temp">${dados.temperatura}${dados.unidade}</p>
+        <p>${traduzirClima(dados.codigoClima)}</p>
+
+        <div class="previsao">
+            ${previsoesHTML}
+        </div>
+    </div>
+`;
+
+        } else if (dados === null) {
+
+            containerResultado.innerHTML += `
+                <div class="msg-erro">
+                    <p>⚠️ Cidade "<strong>${nomeBuscado}</strong>" não encontrada.</p>
+                    <span>Verifique a ortografia e tente novamente.</span>
+                </div>
+            `;
+
+        } else {
+
+            containerResultado.innerHTML += `
+                <div class="msg-erro">
+                    <p>❌ Ops! Ocorreu um erro ao buscar <strong>${nomeBuscado}</strong>.</p>
+                    <span>Tente novamente em alguns instantes.</span>
+                </div>
+            `;
+        }
+    });
 });
